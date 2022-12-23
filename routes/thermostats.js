@@ -24,7 +24,8 @@ exports.list = function(req, res){
 					thermostatArray.push({ name : revisionArray[1], thermostatId : revisionArray[0]} );
 				}
 				
-				ecobeeConfig.tokens.refreshTokenExpiredDate = new Date(Date.now() + 9000000);
+				ecobeeConfig.tokens.cookieRefreshtoken = tokens.refresh_token;
+				ecobeeConfig.tokens.cookieExpiredDate = new Date(Date.now() + 9000000);
 				saveConfig();
 				
 				res.cookie('refreshtoken', tokens.refresh_token, { expires: new Date(Date.now() + 9000000)});
@@ -82,13 +83,53 @@ exports.list = function(req, res){
 // }
 
 
+var authenticate = function(cb) {
+	var tokens = ecobeeConfig.tokens
+	, cookie_refresh = ecobeeConfig.tokens.cookieRefreshtoken;
+	
+	if (ecobeeConfig.tokens.cookieExpiredDate) {
+		var refreshTokenExpiredDate = new Date(ecobeeConfig.tokens.cookieExpiredDate);
+		var currentDate = new Date(Date.now());
+		if (currentDate > refreshTokenExpiredDate) {
+			cookie_refresh = null;
+		}
+	}
+	
+	if (cookie_refresh || tokens) { // have we already authenticated before? 
+		var refresh_token = cookie_refresh || tokens.refresh_token;
+		
+		api.calls.refresh(refresh_token, function(err, registerResultObject) {
+			if (err) { // if we error refreshing the token clear session and re-log
+				// req.session.destroy();
+				
+				// ecobeeConfig.session = {};
+				// saveConfig();
+				
+				// res.redirect('/login/getpin');
+				cb(false, "Cannot refresh token. You should create a new PIN. Go to http://localhost:3000/");
+			} else { // refresh of the tokens was successful to we can proceed to the main app
+				// req.session.tokens = registerResultObject;
+				
+				ecobeeConfig.tokens = registerResultObject;
+				saveConfig();
+				
+				cb(true, "Success");
+			}  	
+		});
+	} else {
+		// res.redirect('/login/getpin');
+		cb(false, "No PIN has been requested yet. Go to http://localhost:3000/");
+	}
+};
+
+
 exports.hold = function(req, res) {
 	var tokens = ecobeeConfig.tokens
-	, thermostatId = req.params.id
-	, holdTemp = req.param('holdtemp')
-	, hvacMode = req.param('hvacmode')
-	, thermostats_update_options = new api.ThermostatsUpdateOptions(thermostatId);
-	var functions_array = [];
+		, thermostatId = req.params.id
+		, holdTemp = req.param('holdtemp')
+		, hvacMode = req.param('hvacmode')
+		, thermostats_update_options = new api.ThermostatsUpdateOptions(thermostatId)
+		, functions_array = [];
 	
 	if (holdTemp) {
 		// some defaults for these values
@@ -108,7 +149,6 @@ exports.hold = function(req, res) {
 		functions_array.push(set_hold_function);
 	}
 	
-	
 	thermostats_update_options.thermostat = {
 		"settings": {
 			"hvacMode": hvacMode
@@ -117,17 +157,31 @@ exports.hold = function(req, res) {
 	
 	api.calls.updateThermostats(tokens.access_token, thermostats_update_options, functions_array, null, function(error) {
 		if (error) {
-			res.redirect('/login');
+			// res.redirect('/login');
+
+			authenticate(function (success, message) {
+				if (success) {
+					// Token refres success => retry to set hold
+					exports.hold(req, res);
+				}
+				else {
+					var msg = "Cannot refresh token";
+					if (message) {
+						msg = message;
+					}
+					res.status(404).send(msg);
+				}
+			})
 		}
 		else {
 			// we set a timeout since it takes some time to update a thermostat. One solution would be to use ajax
 			// polling or websockets to improve this further.
 			setTimeout(function() {
-				res.redirect('/thermostats/' + thermostatId);
+				// res.redirect('/thermostats/' + thermostatId);
+				res.status(200).send('Success');
 			}, 6000)		
 		}
 	});
-	
 }
 
 exports.resume = function(req, res) {
