@@ -1,19 +1,19 @@
 var api = require('../ecobee-api')
-  , config = require('../config');
+, config = require('../config');
 
 exports.list = function(req, res){
-  var tokens = ecobeeConfig.tokens
-    , cookie_refresh = req.cookies.refreshtoken;
-
-  if (ecobeeConfig.tokens.refreshTokenExpiredDate) {
-	var refreshTokenExpiredDate = new Date(ecobeeConfig.tokens.refreshTokenExpiredDate);
-	var currentDate = new Date(Date.now());
-	if (currentDate > refreshTokenExpiredDate) {
-		cookie_refresh = null;
+	var tokens = ecobeeConfig.tokens
+	, cookie_refresh = req.cookies.refreshtoken;
+	
+	if (ecobeeConfig.tokens.refreshTokenExpiredDate) {
+		var refreshTokenExpiredDate = new Date(ecobeeConfig.tokens.refreshTokenExpiredDate);
+		var currentDate = new Date(Date.now());
+		if (currentDate > refreshTokenExpiredDate) {
+			cookie_refresh = null;
+		}
 	}
-  }
-  
-  if(cookie_refresh || tokens) { // have we already authenticated before? 
+	
+	if(cookie_refresh || tokens) { // have we already authenticated before? 
 		var refresh_token = cookie_refresh || tokens.refresh_token;
 		
 		api.calls.refresh(refresh_token, function(err, registerResultObject) {
@@ -22,11 +22,11 @@ exports.list = function(req, res){
 				
 				ecobeeConfig.session = {};
 				saveConfig();
-
+				
 				res.redirect('/login/getpin');
 			} else { // refresh of the tokens was successful to we can proceed to the main app
 				req.session.tokens = registerResultObject;
-
+				
 				ecobeeConfig.tokens = registerResultObject;
 				saveConfig();
 				
@@ -41,9 +41,9 @@ exports.list = function(req, res){
 exports.create = function(req, res) {
 	// get the users login credentials
 	var authcode = req.param('authcode')
-	  , appKey = config.appKey
-	  , scope = config.scope;
-  
+	, appKey = config.appKey
+	, scope = config.scope;
+	
 	api.calls.registerPin(appKey, authcode, function(err, registerResultObject) {
 		var tooFast = false;
 		if(err) {
@@ -57,10 +57,10 @@ exports.create = function(req, res) {
 				errorMessage = 'you must first authorize the app on your ecobee portal settings page. Then click the complete link button below.';
 			}
 			res.render('login/getpin', {pin: req.session.pin, code: req.session.authcode, interval: req.session.interval, isError: true, tooFast: tooFast,  error: errorMessage});
-
+			
 		} else {
 			req.session.tokens = registerResultObject;
-
+			
 			ecobeeConfig.tokens = registerResultObject;
 			saveConfig();
 			
@@ -73,8 +73,8 @@ exports.error = function(req, res) {
 },
 exports.getpin = function(req, res) {
 	var scope = 'smartWrite'
-	  , client_id = config.appKey;
-
+	, client_id = config.appKey;
+	
 	api.calls.getPin(client_id, scope, function(err, pinResults) {
 		if(err) res.redirect('/login/error');
 		else {
@@ -82,7 +82,7 @@ exports.getpin = function(req, res) {
 			req.session.authcode = pinResults.code;
 			req.session.pin = pinResults.ecobeePin;
 			req.session.interval = pinResults.interval;
-
+			
 			ecobeeConfig.session = {
 				"authcode": pinResults.code,
 				"pin": pinResults.ecobeePin,

@@ -1,15 +1,15 @@
 /**
- * Module dependencies.
- */
+* Module dependencies.
+*/
 
 var express = require('express')
-  , fs = require("fs")
-  , routes = require('./routes')
-  , login = require('./routes/login')
-  , thermostats = require('./routes/thermostats')
-  , http = require('http')
-  , path = require('path')
-  , api = require('./ecobee-api');
+, fs = require("fs")
+, routes = require('./routes')
+, login = require('./routes/login')
+, thermostats = require('./routes/thermostats')
+, http = require('http')
+, path = require('path')
+, api = require('./ecobee-api');
 
 var app = express();
 
@@ -45,7 +45,6 @@ app.post('/login', login.create);  // login post handler
 // check routes/thermostats.js for the implementation details of the thermostat routes
 app.post('/thermostats/:id/sethold', thermostats.hold);  // adjust a specific thermostat hold
 app.post('/thermostats/:id/resume', thermostats.resume);  // resume a specific thermostat
-app.post('/thermostats/:id/mode', thermostats.mode); // change the mode of a specific thermostats
 app.get('/thermostats/:id', thermostats.view); // view a specific thermostat
 app.get('/thermostats', thermostats.list); // list all the users thermostats
 
@@ -90,7 +89,7 @@ var readConfig = function() {
 saveConfig = function() {
   const jsonString = JSON.stringify(ecobeeConfig, null, 4);
   console.log(jsonString);
-
+  
   fs.writeFileSync('./ecobeeConfig.json', jsonString);
   console.log("File written successfully\n");
 }
@@ -121,9 +120,9 @@ saveConfig();
         ecobeeConfig.access_token = registerResultObject.access_token;
         ecobeeConfig.expires_in = registerResultObject.expires_in;
         ecobeeConfig.refresh_token = registerResultObject.refresh_token;
-
+        
         saveConfig();
-
+        
         cb(true);
       }  	
     });	
@@ -151,45 +150,45 @@ var refreshToken = function(cb) {
 }
 
 var getThermostats = function(cb) {
-    // get the list of thermostats
-  	var thermostatSummaryOptions = new api.ThermostatSummaryOptions();
-
-    api.calls.thermostatSummary(ecobeeConfig.access_token, thermostatSummaryOptions, function(err, summary) {
-      if(err) { 
-        console.log(err);
-
-        if (err.data.status.code == 14) {
-          // authentication token has expired
-          refreshToken(function (sucess) {
-            if (sucess) {
-              getThermostats(cb);
-            } else {
-              cb(false);
-            }
-          });
-        }
-        else {
-          cb(false);
-        }
+  // get the list of thermostats
+  var thermostatSummaryOptions = new api.ThermostatSummaryOptions();
+  
+  api.calls.thermostatSummary(ecobeeConfig.access_token, thermostatSummaryOptions, function(err, summary) {
+    if(err) { 
+      console.log(err);
+      
+      if (err.data.status.code == 14) {
+        // authentication token has expired
+        refreshToken(function (sucess) {
+          if (sucess) {
+            getThermostats(cb);
+          } else {
+            cb(false);
+          }
+        });
       }
       else {
-        var thermostatArray = [];
-        console.log(summary)
-        
-        for( var i = 0; i < summary.revisionList.length; i ++) {
-          var revisionArray = summary.revisionList[i].split(':');
-          thermostatArray.push({ name : revisionArray[1], thermostatId : revisionArray[0]} );
-        }
-
-        ecobeeConfig.thermostats = thermostatArray;
-        
-        ecobeeConfig.expires = new Date(Date.now() + 9000000);
-        // res.render('thermostats/index', {thermostats : thermostatArray});
-        saveConfig();
-
-        cb(true);
+        cb(false);
       }
-    });
+    }
+    else {
+      var thermostatArray = [];
+      console.log(summary)
+      
+      for( var i = 0; i < summary.revisionList.length; i ++) {
+        var revisionArray = summary.revisionList[i].split(':');
+        thermostatArray.push({ name : revisionArray[1], thermostatId : revisionArray[0]} );
+      }
+      
+      ecobeeConfig.thermostats = thermostatArray;
+      
+      ecobeeConfig.expires = new Date(Date.now() + 9000000);
+      // res.render('thermostats/index', {thermostats : thermostatArray});
+      saveConfig();
+      
+      cb(true);
+    }
+  });
 }
 
 var setHvacMode = function(thermostatId, hvacMode, cb) {
@@ -197,18 +196,18 @@ var setHvacMode = function(thermostatId, hvacMode, cb) {
   // , holdTemp = 22
   // , desiredCool = 770 // some defaults for these values
   // , desiredHeat = 690;
-
+  
   // if(hvacMode === 'heat' || hvacMode === 'auxHeatOnly') {
   //   desiredHeat = holdTemp * 10; // our canonical form is F * 10
   // } else {
   //   desiredCool = holdTemp * 10; // our canonical form is F * 10
   // }
-
+  
   var functions_array = [];
   // var set_hold_function = new api.SetHoldFunction(desiredCool, desiredHeat,'indefinite', null);
   // var celcius = -32;
   // var faranheit = Math.round((celcius * 1.8) + 32);
-
+  
   thermostats_update_options.thermostat = {
     "settings": {
       "hvacMode": hvacMode
@@ -233,9 +232,9 @@ var setHvacMode = function(thermostatId, hvacMode, cb) {
     getThermostats(function (success) {
       if (success) {
         var thermostatId = ecobeeConfig.thermostats[1].thermostatId
-          , hvacMode = 'heat';
-          // , hvacMode = 'auxHeatOnly';
-
+        , hvacMode = 'heat';
+        // , hvacMode = 'auxHeatOnly';
+        
         setHvacMode(thermostatId, hvacMode, function(success) {
           if (success) {
             console.log("Success!!!");
