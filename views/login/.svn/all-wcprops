@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/repos/!svn/ver/59491/main/trunk/web/apidemo/views/login
+END
+getpin.ejs
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/repos/!svn/ver/59482/main/trunk/web/apidemo/views/login/getpin.ejs
+END
+index.ejs
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/repos/!svn/ver/59470/main/trunk/web/apidemo/views/login/index.ejs
+END
+error.ejs
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/repos/!svn/ver/59491/main/trunk/web/apidemo/views/login/error.ejs
+END

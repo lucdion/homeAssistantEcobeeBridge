@@ -1,0 +1,16 @@
+{
+  "name": "apidemo-app",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "node app"
+  },
+  "dependencies": {
+    "body-parser": "^1.19.1",
+    "ejs": "*",
+    "expect.js": "*",
+    "express": "^3.*",
+    "favicon": "^0.0.2",
+    "logger": "^0.0.1"
+  }
+}

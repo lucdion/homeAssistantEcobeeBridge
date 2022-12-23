@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/repos/!svn/ver/59544/main/trunk/web/apidemo/views/thermostats
+END
+show.ejs
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/repos/!svn/ver/59469/main/trunk/web/apidemo/views/thermostats/show.ejs
+END
+index.ejs
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/repos/!svn/ver/59469/main/trunk/web/apidemo/views/thermostats/index.ejs
+END
+off.ejs
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/repos/!svn/ver/59544/main/trunk/web/apidemo/views/thermostats/off.ejs
+END
+automode.ejs
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/repos/!svn/ver/59544/main/trunk/web/apidemo/views/thermostats/automode.ejs
+END
