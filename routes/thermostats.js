@@ -88,22 +88,27 @@ exports.hold = function(req, res) {
 	  , thermostatId = req.params.id
 	  , holdTemp = req.param('holdtemp')
 	  , hvacMode = req.param('hvacmode')
-	  , thermostats_update_options = new api.ThermostatsUpdateOptions(thermostatId)
-	  , desiredCool = 770 // some defaults for these values
-	  , desiredHeat = 690;
-
-	if(hvacMode === 'heat' || hvacMode === 'auxHeatOnly') {
-		desiredHeat = parseInt(holdTemp, 10) * 10; // our canonical form is F * 10
-	} else {
-		desiredCool = parseInt(holdTemp, 10) * 10; // our canonical form is F * 10
-	}
-
-	var functions_array = [];
-	var set_hold_function = new api.SetHoldFunction(desiredCool, desiredHeat,'indefinite', null);
-
-	var celcius = -32;
-	var faranheit = Math.round((celcius * 1.8) + 32);
-
+	  , thermostats_update_options = new api.ThermostatsUpdateOptions(thermostatId);
+    var functions_array = [];
+    
+    if (holdTemp) {
+        // some defaults for these values
+        var desiredCool = 824;  // 28 celcius
+        var desiredHeat = 590;  // 15 celcius
+		var holdTempCelcius = parseInt(holdTemp, 10);
+		var holdTempFarenheit = holdTempCelcius * (9/5) + 32;
+		var holdTempFarenheitAdjusted = holdTempFarenheit * 10; // canonical form is F * 10
+        
+        if (hvacMode === 'heat' || hvacMode === 'auxHeatOnly') {
+            desiredHeat =  holdTempFarenheitAdjusted;
+        } else {
+            desiredCool = holdTempFarenheitAdjusted; 
+        }
+        
+        var set_hold_function = new api.SetHoldFunction(desiredCool, desiredHeat,'indefinite', null);
+        functions_array.push(set_hold_function);
+    }
+    
 
 	thermostats_update_options.thermostat = {
 		"settings": {
@@ -146,53 +151,6 @@ exports.resume = function(req, res) {
 }
 
 exports.mode = function(req, res) {
-// 	var thermostatId = req.params.id
-// 	, holdTemp = req.param('holdtemp')
-// 	, hvacMode = req.param('hvacmode')
-// 	, thermostats_update_options = new api.ThermostatsUpdateOptions(thermostatId)
-// 	, desiredCool = 770 // some defaults for these values
-// 	, desiredHeat = 690;
-
-//   if(hvacMode === 'heat' || hvacMode === 'auxHeatOnly') {
-// 	  desiredHeat = parseInt(holdTemp, 10) * 10; // our canonical form is F * 10
-//   } else {
-// 	  desiredCool = parseInt(holdTemp, 10) * 10; // our canonical form is F * 10
-//   }
-
-//   var functions_array = [];
-//   var set_hold_function = new api.SetHoldFunction(desiredCool, desiredHeat,'indefinite', null);
-
-//   var celcius = -32;
-//   var faranheit = Math.round((celcius * 1.8) + 32);
-
-
-//   authenticate(req, function(success, req) {
-// 	  console.log("Success " + success);
-// 	  var tokens = req.session.tokens;
-
-// 	  if (success) {
-// 		  thermostats_update_options.thermostat = {
-// 			  "settings": {
-// 				  "hvacMode": hvacMode
-// 			  }
-// 		  };
-		  
-// 		  api.calls.updateThermostats(tokens.access_token, thermostats_update_options, functions_array, null, function(error) {
-// 			  if(error) {
-// 				  console.log(error);
-// 				  // res.redirect('/login'); // LUCD
-// 			  } 
-// 			  else {
-// 				  // we set a timeout since it takes some time to update a thermostat. One solution would be to use ajax
-// 				  // polling or websockets to improve this further.
-// 				  setTimeout(function() {
-// 					  res.redirect('/thermostats/' + thermostatId);
-// 				  }, 6000)		
-// 			  }
-// 		  });
-// 	  }
-//   });
-
   var thermostatId = req.params.id
 	, holdTemp = req.param('holdtemp')
 	, hvacMode = req.param('hvacmode')

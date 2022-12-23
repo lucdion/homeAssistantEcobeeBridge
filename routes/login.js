@@ -14,7 +14,6 @@ exports.list = function(req, res){
   }
   
   if(cookie_refresh || tokens) { // have we already authenticated before? 
-
 		var refresh_token = cookie_refresh || tokens.refresh_token;
 		
 		api.calls.refresh(refresh_token, function(err, registerResultObject) {

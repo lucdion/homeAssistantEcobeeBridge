@@ -80,9 +80,9 @@ var readConfig = function() {
   } catch (err) {
     console.log(err);
     ecobeeConfig = {
-      "authcode": "pinResults.code",
-      "pin": "pinResults.ecobeePin",
-      "interval": "pinResults.interval"
+      // "authcode": "pinResults.code",
+      // "pin": "pinResults.ecobeePin",
+      // "interval": "pinResults.interval"
     };
   }
 };
@@ -98,7 +98,7 @@ saveConfig = function() {
 readConfig();
 saveConfig();
 
-var getAccessToken = function(cb) {
+/*var getAccessToken = function(cb) {
   if (ecobeeConfig.access_token) {
     cb(true);
   }
@@ -225,7 +225,7 @@ var setHvacMode = function(thermostatId, hvacMode, cb) {
       cb(true);
     }
   });
-}
+}*/
 
 /*getAccessToken(function(success) {
   console.log("Success " + success);
