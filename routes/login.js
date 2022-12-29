@@ -1,31 +1,35 @@
 var api = require('../ecobee-api')
 , config = require('../config');
 
-exports.list = function(req, res){
-	var tokens = ecobeeConfig.tokens
-	, cookie_refresh = req.cookies.refreshtoken;
-	
-	if (ecobeeConfig.tokens.refreshTokenExpiredDate) {
-		var refreshTokenExpiredDate = new Date(ecobeeConfig.tokens.refreshTokenExpiredDate);
+validateCookieRefreshToken = function() {
+	if (ecobeeConfig.cookies && ecobeeConfig.cookies.cookieExpiredDate) {
+		var cookieExpiredDate = new Date(ecobeeConfig.cookies.cookieExpiredDate);
 		var currentDate = new Date(Date.now());
-		if (currentDate > refreshTokenExpiredDate) {
-			cookie_refresh = null;
+		if (currentDate > cookieExpiredDate) {
+			delete ecobeeConfig.cookies.cookieExpiredDate;
+			delete ecobeeConfig.cookies.cookieRefreshtoken;
 		}
 	}
+}
+
+exports.list = function(req, res){
+	validateCookieRefreshToken();
+
+	var tokens = ecobeeConfig.tokens
+		, cookie_refresh = ecobeeConfig.tokens.cookieRefreshtoken;
 	
-	if(cookie_refresh || tokens) { // have we already authenticated before? 
+	if (cookie_refresh || tokens) { // have we already authenticated before? 
 		var refresh_token = cookie_refresh || tokens.refresh_token;
 		
 		api.calls.refresh(refresh_token, function(err, registerResultObject) {
 			if(err) { // if we error refreshing the token clear session and re-log
-				req.session.destroy();
-				
-				ecobeeConfig.session = {};
+				// req.session.destroy();
+				delete ecobeeConfig.cookies;
 				saveConfig();
 				
 				res.redirect('/login/getpin');
 			} else { // refresh of the tokens was successful to we can proceed to the main app
-				req.session.tokens = registerResultObject;
+				// req.session.tokens = registerResultObject;
 				
 				ecobeeConfig.tokens = registerResultObject;
 				saveConfig();
@@ -59,7 +63,7 @@ exports.create = function(req, res) {
 			res.render('login/getpin', {pin: req.session.pin, code: req.session.authcode, interval: req.session.interval, isError: true, tooFast: tooFast,  error: errorMessage});
 			
 		} else {
-			req.session.tokens = registerResultObject;
+			// req.session.tokens = registerResultObject;
 			
 			ecobeeConfig.tokens = registerResultObject;
 			saveConfig();

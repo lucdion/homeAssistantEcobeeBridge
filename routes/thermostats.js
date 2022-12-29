@@ -24,8 +24,10 @@ exports.list = function(req, res){
 					thermostatArray.push({ name : revisionArray[1], thermostatId : revisionArray[0]} );
 				}
 				
-				ecobeeConfig.tokens.cookieRefreshtoken = tokens.refresh_token;
-				ecobeeConfig.tokens.cookieExpiredDate = new Date(Date.now() + 9000000);
+				ecobeeConfig.cookies = {
+					"cookieRefreshtoken": tokens.refresh_token,
+					"cookieExpiredDate": new Date(Date.now() + 9000000)
+				};
 				saveConfig();
 				
 				res.cookie('refreshtoken', tokens.refresh_token, { expires: new Date(Date.now() + 9000000)});
@@ -83,18 +85,12 @@ exports.list = function(req, res){
 // }
 
 
-var authenticate = function(cb) {
+authenticate = function(cb) {
+	validateCookieRefreshToken();
+
 	var tokens = ecobeeConfig.tokens
-	, cookie_refresh = ecobeeConfig.tokens.cookieRefreshtoken;
-	
-	if (ecobeeConfig.tokens.cookieExpiredDate) {
-		var refreshTokenExpiredDate = new Date(ecobeeConfig.tokens.cookieExpiredDate);
-		var currentDate = new Date(Date.now());
-		if (currentDate > refreshTokenExpiredDate) {
-			cookie_refresh = null;
-		}
-	}
-	
+	, cookie_refresh = ecobeeConfig.cookies.cookieRefreshtoken;
+		
 	if (cookie_refresh || tokens) { // have we already authenticated before? 
 		var refresh_token = cookie_refresh || tokens.refresh_token;
 		
@@ -102,9 +98,9 @@ var authenticate = function(cb) {
 			if (err) { // if we error refreshing the token clear session and re-log
 				// req.session.destroy();
 				
-				// ecobeeConfig.session = {};
-				// saveConfig();
-				
+				delete ecobeeConfig.cookies;
+				saveConfig();
+
 				// res.redirect('/login/getpin');
 				cb(false, "Cannot refresh token. You should create a new PIN. Go to http://localhost:3000/");
 			} else { // refresh of the tokens was successful to we can proceed to the main app
@@ -135,9 +131,9 @@ exports.hold = function(req, res) {
 		// some defaults for these values
 		var desiredCool = 824;  // 28 celcius
 		var desiredHeat = 590;  // 15 celcius
-		var holdTempCelcius = parseInt(holdTemp, 10);
+		var holdTempCelcius = parseFloat(holdTemp, 10);
 		var holdTempFarenheit = holdTempCelcius * (9/5) + 32;
-		var holdTempFarenheitAdjusted = holdTempFarenheit * 10; // canonical form is F * 10
+		var holdTempFarenheitAdjusted = Math.round(holdTempFarenheit * 10); // canonical form is F * 10
 		
 		if (hvacMode === 'heat' || hvacMode === 'auxHeatOnly') {
 			desiredHeat =  holdTempFarenheitAdjusted;
@@ -157,8 +153,6 @@ exports.hold = function(req, res) {
 	
 	api.calls.updateThermostats(tokens.access_token, thermostats_update_options, functions_array, null, function(error) {
 		if (error) {
-			// res.redirect('/login');
-
 			authenticate(function (success, message) {
 				if (success) {
 					// Token refres success => retry to set hold
@@ -185,7 +179,8 @@ exports.hold = function(req, res) {
 }
 
 exports.resume = function(req, res) {
-	var tokens = req.session.tokens
+	// var tokens = req.session.tokens
+	var tokens = ecobeeConfig.tokens
 	, thermostatId = req.params.id
 	, thermostats_update_options = new api.ThermostatsUpdateOptions(thermostatId)
 	, resume_program_function = new api.ResumeProgramFunction();
