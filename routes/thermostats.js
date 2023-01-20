@@ -141,7 +141,7 @@ exports.hold = function(req, res) {
 			desiredCool = holdTempFarenheitAdjusted; 
 		}
 		
-		var set_hold_function = new api.SetHoldFunction(desiredCool, desiredHeat,'indefinite', null);
+		var set_hold_function = new api.SetHoldFunction(desiredCool, desiredHeat, 'indefinite', null);
 		functions_array.push(set_hold_function);
 	}
 	
