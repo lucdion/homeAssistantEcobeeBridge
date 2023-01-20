@@ -1,4 +1,4 @@
-# homeAssistantEcobeeBridge 
+# Home Assistant Ecobee Bridge 
 
 ### NOTES: 
 * This project is still in development, its a good proof of concept that can be used. This project is open source, you can improve it by creating Pull Request.
