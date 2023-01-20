@@ -15,9 +15,16 @@ validateCookieRefreshToken = function() {
 exports.list = function(req, res){
 	validateCookieRefreshToken();
 
-	var tokens = ecobeeConfig.tokens
-		, cookie_refresh = ecobeeConfig.tokens.cookieRefreshtoken;
+	var tokens, cookie_refresh;
 	
+	if (ecobeeConfig.tokens){
+		tokens = ecobeeConfig.tokens;
+
+		if (ecobeeConfig.cookies.cookieRefreshtoken) {
+			cookie_refresh = ecobeeConfig.cookies.cookieRefreshtoken;
+		}
+	}
+
 	if (cookie_refresh || tokens) { // have we already authenticated before? 
 		var refresh_token = cookie_refresh || tokens.refresh_token;
 		
