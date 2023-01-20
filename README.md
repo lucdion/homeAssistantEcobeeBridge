@@ -2,7 +2,7 @@
 
 ### NOTES: 
 * This project is still in development, its a good proof of concept that can be used. This project is open source, you can improve it by creating Pull Request.
-* The base of the project is from `https://github.com/OutsourcedGuru/ecobee-app`
+* The base of the project is from [https://github.com/OutsourcedGuru/ecobee-app](https://github.com/OutsourcedGuru/ecobee-app)
 
 
 
@@ -27,9 +27,14 @@ This JSON file contains all the server's required information to access the Ecob
 
 * `npm install`
 * `npm start`
+
+
 * Open a web page to that server (ex: `http://localhost:3000/`)
-	* The first time you will to setup the Ecobee application:
+	* The first time you will need to setup the Ecobee application:
 		* Copy the displayed PIN code (ex: RRWV-KJKD)
+		
+		<img src="images/setup1.png" width=460/>
+		
 		* Go to the Ecobee website and signin on your account.
 			* From the menu select "My Apps"
 			* Select "Add Application" button
@@ -48,7 +53,7 @@ Before using HA, you can test this using a tool such as `Postman`
 
 * Create a request of type: `POST http://[YOUR_SERVER_ADDRESS]/thermostats/[THERMOSTAT_ID]/sethold?hvacmode=heat&holdtemp=21`
 	* `YOUR_SERVER_ADDRESS`: Its your nodejs server IP (ex: `http://localhost:3000`)
-	* `THERMOSTAT_ID: Its your thermostat Id. You can retrieves your list of thermostats and their ids at `http://localhost:3000/thermostats`
+	* `THERMOSTAT_ID`: Its your thermostat Id. You can retrieves your list of thermostats and their ids at `http://localhost:3000/thermostats`
 	* `hvacmode`: `heat` or `auxHeatOnly`
 	* `holdtemp`: Optional parameter specifying the hold temperature in celcius.
 
@@ -57,7 +62,7 @@ Before using HA, you can test this using a tool such as `Postman`
 
 ### Setup REST commands
 
-Add this section in your HA `configuration.yaml` file
+Add this section in your HA `configuration.yaml` file to setup all REST commands
 
 ```
 rest_command:
@@ -81,7 +86,10 @@ Restart Home assistant to apply the configuration change.
 
 ### Use REST commands
 
-In your automations you can add a `service` like these:
+### In `automations.yaml`
+
+In your automations file `automations.yaml` you can add a `service` like these:
+
 ```
   # Set HVAC mode to HEAT
   - service: rest_command.ecobee_set_hvac_and_temp
@@ -92,6 +100,10 @@ In your automations you can add a `service` like these:
   - service: rest_command.ecobee_set_hvac_and_temp
     data:
       hvacMode: "auxHeatOnly"
-      temperature: 19
+      temperature: 22
 ```
+
+#### Using the Editor
+<img src="images/ha_automations.png" width=660/>
+
 
