@@ -43,9 +43,11 @@ This JSON file contains all the server's required information to access the Ecob
 			* A Congratulation page will be displayed
 		* Returns on your nodejs server webpage
 			* Press the "Complete Link" button.
-			* Your list of Ecobee thermostat should now be visible.
+			* Your list of Ecobee thermostat should now be visible:
+   		   
+   		   <img src="images/setup2.png" width=460/>
 
-You are now ready to sends HTTP request from HA!
+You are now ready to sends HTTP request from Home Assistant!
 
 ## Changing the MODE and the hold temperature
 
