@@ -1,6 +1,9 @@
 # homeAssistantEcobeeBridge 
 
-### NOTE: This project is still in development, its a good proof of concept that can be used. This project is open source, you can improve it by creating Pull Request.
+### NOTES: 
+* This project is still in development, its a good proof of concept that can be used. This project is open source, you can improve it by creating Pull Request.
+* The base of the project is from `https://github.com/OutsourcedGuru/ecobee-app`
+
 
 
 ## Description
