@@ -1,11 +1,24 @@
 # homeAssistantEcobeeBridge 
 
+### NOTE: This project is still in development, its a good proof of concept that can be used. This project is open source, you can improve it by creating Pull Request.
+
+
+## Description
+
 This is a simple nodejs server used to control an Ecobee thermostat from Home assistant.
 
 Home Assistant enables you to control some basic feature of an Ecobee thermostat, but can't set
 for example the Ecobee mode to AUX.
 
 This proxy servers receive REST/HTTP request from HA and sends them to the Ecobee API. Using this proxy server any functionnality of the Ecobee API can be accessed from HA.
+
+
+### `ecobeeConfig.json`
+This nodejs server will keep in a local file (`ecobeeConfig.json`) all the required information to access the Ecobee API.
+In the following setup, some private data will be written on this JSON file. Be certain to not make that file public since it contains authorization information to access your Ecobee thermostat.
+
+This JSON file contains all the server's required information to access the Ecobee API, so the setup will needs to be done only once.
+
 
 ## Set up
 
@@ -78,3 +91,4 @@ In your automations you can add a `service` like these:
       hvacMode: "auxHeatOnly"
       temperature: 19
 ```
+
