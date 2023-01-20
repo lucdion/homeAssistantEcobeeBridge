@@ -1,4 +1,4 @@
-# ecobeehvacmode
+# homeAssistantEcobeeBridge 
 
 This is a simple nodejs server used to control an Ecobee thermostat from Home assistant.
 
